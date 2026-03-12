@@ -1,0 +1,12 @@
+{
+  "__version__": "1.0.0",
+  "collisionGroups": [
+    {
+      "index": 0,
+      "name": "DEFAULT"
+    }
+  ],
+  "collisionMatrix": {
+    "0": 1
+  }
+}
