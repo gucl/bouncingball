@@ -21,7 +21,7 @@ export class BallManager extends Component {
 
     @property(Prefab)
     bigBallSquarePrefab: Prefab = null;
-    
+
     @property(Prefab)
     bigBallDiamondPrefab: Prefab = null;
 
@@ -48,27 +48,27 @@ export class BallManager extends Component {
         for (let i = 0; i < GameConfig.BIG_BALL_LAYERS; i++) {
             this._bigBalls.push([]);
         }
-        
+
         director.on('BALL_RECYCLE', this.onBallRecycleEvent, this);
         director.on('PENDING_BALL_ACTIVATED', this.onPendingBallActivated, this);
     }
-    
+
     start() {
     }
 
     onDestroy() {
         director.off('BALL_RECYCLE', this.onBallRecycleEvent, this);
         director.off('PENDING_BALL_ACTIVATED', this.onPendingBallActivated, this);
-        
+
         if (BallManager._instance === this) {
             BallManager._instance = null;
         }
     }
-    
+
     private onBallRecycleEvent(ball: SmallBall) {
         this.recycleBall(ball);
     }
-    
+
     private onPendingBallActivated(ball: SmallBall) {
         this.activatePendingBall(ball);
     }
@@ -81,7 +81,7 @@ export class BallManager extends Component {
         const containerWorldPos = this.smallBallsContainer.worldPosition;
         const ballNode = instantiate(this.smallBallPrefab);
         ballNode.setParent(this.smallBallsContainer);
-        
+
         const localX = launchWorldPos.x - containerWorldPos.x;
         const localY = launchWorldPos.y - containerWorldPos.y;
         ballNode.setPosition(localX, localY, 0);
@@ -91,7 +91,7 @@ export class BallManager extends Component {
         if (smallBall) {
             smallBall.setValue(value);
             this._flyingBalls.push(smallBall);
-            
+
             this.scheduleOnce(() => {
                 if (smallBall && smallBall.node && smallBall.node.isValid) {
                     smallBall.launch(direction);
@@ -116,13 +116,13 @@ export class BallManager extends Component {
         if (smallBall) {
             smallBall.setValue(value);
             smallBall.setIsFromPipe(false);  // 标记为待获得球（不是从管道发射的）
-            
+
             this.scheduleOnce(() => {
                 if (smallBall && smallBall.node && smallBall.node.isValid) {
                     smallBall.setAsPending();
                 }
             }, 0);
-            
+
             this._pendingBalls.push(smallBall);
         }
 
@@ -143,20 +143,20 @@ export class BallManager extends Component {
         if (flyingIndex !== -1) {
             this._flyingBalls.splice(flyingIndex, 1);
         }
-        
+
         const pendingIndex = this._pendingBalls.indexOf(ball);
         if (pendingIndex !== -1) {
             this._pendingBalls.splice(pendingIndex, 1);
         }
-        
+
         // 获取小球当前位置（用于回收动画）
         const ballPos = ball.node.position;
         const value = ball.value;
         const isFromPipe = ball.isFromPipe;
-        
+
         // 先销毁小球节点
         ball.node.destroy();
-        
+
         // 根据小球来源决定回收到管道还是闲置位
         if (isFromPipe) {
             // 从管道发射的球，回收到管道（带动画）
@@ -165,7 +165,7 @@ export class BallManager extends Component {
             // 待获得球（从大球消灭产生的），回收到闲置位
             GameManager.instance?.recyclePendingBallToIdleSlot(value);
         }
-        
+
         this.checkAllBallsRecycled();
     }
 
@@ -177,7 +177,7 @@ export class BallManager extends Component {
             });
         }
     }
-    
+
     /**
      * 等待所有回收动画完成
      */
@@ -187,7 +187,7 @@ export class BallManager extends Component {
             onComplete();
             return;
         }
-        
+
         // 轮询检查动画是否完成
         this.scheduleOnce(() => {
             this.waitForRecycleAnimations(onComplete);
@@ -198,6 +198,37 @@ export class BallManager extends Component {
         const balls = [...this._flyingBalls];
         for (const ball of balls) {
             this.recycleBall(ball);
+        }
+    }
+
+    /**
+     * 清除所有球（重新开始游戏时调用）
+     */
+    clearAllBalls() {
+        // 清除所有飞行中的小球
+        for (const ball of this._flyingBalls) {
+            if (ball && ball.node && ball.node.isValid) {
+                ball.node.destroy();
+            }
+        }
+        this._flyingBalls = [];
+
+        // 清除所有待获得小球
+        for (const ball of this._pendingBalls) {
+            if (ball && ball.node && ball.node.isValid) {
+                ball.node.destroy();
+            }
+        }
+        this._pendingBalls = [];
+
+        // 清除所有大球
+        for (let layer = 0; layer < this._bigBalls.length; layer++) {
+            for (const ball of this._bigBalls[layer]) {
+                if (ball && ball.node && ball.node.isValid) {
+                    ball.node.destroy();
+                }
+            }
+            this._bigBalls[layer] = [];
         }
     }
 
@@ -220,7 +251,7 @@ export class BallManager extends Component {
     generateBigBallLayer(layer: number, round: number, pipeSum: number) {
         this.generateBigBallLayerWithCapacity(layer, round, round, pipeSum);
     }
-    
+
     /**
      * 生成大球层（可分别指定容量和数值的回合数）
      * @param layer 层号（1-8）
@@ -231,10 +262,10 @@ export class BallManager extends Component {
     generateBigBallLayerWithCapacity(layer: number, capacityRound: number, valueRound: number, pipeSum: number) {
         // 根据 capacityRound 决定容量：奇数回合用4容量，偶数回合用5容量
         const capacity = (capacityRound % 2 === 1) ? 4 : 5;
-        
+
         // 获取上一层（layer+1，因为新层在最底部，上一层在上面）的大球数量
         const previousLayerBallCount = this.getBallCountInLayer(layer + 1);
-        
+
         // 使用权重配置生成大球数量
         const count = GameConfig.generateBigBallCount(capacity, previousLayerBallCount);
 
@@ -255,19 +286,17 @@ export class BallManager extends Component {
             this.createBigBall(new Vec3(pos.x, layerY, 0), value, shape, layer);
         }
     }
-    
+
     /**
      * 获取指定层的大球数量
      * @param layer 层号
      * @returns 该层的大球数量，如果层不存在返回-1
      */
     getBallCountInLayer(layer: number): number {
-        let count = 0;
-        for (const ball of this._bigBalls) {
-            if (ball.layer === layer) {
-                count++;
-            }
+        if (layer < 1 || layer > this._bigBalls.length) {
+            return -1;
         }
+        const count = this._bigBalls[layer - 1].length;
         return count > 0 ? count : -1;
     }
 
@@ -292,7 +321,7 @@ export class BallManager extends Component {
 
     createBigBall(position: Vec3, value: number, shape: BigBallShape, layer: number): BigBall {
         let prefab: Prefab = null;
-        
+
         switch (shape) {
             case BigBallShape.CIRCLE:
                 prefab = this.bigBallCirclePrefab;
@@ -305,7 +334,7 @@ export class BallManager extends Component {
                 prefab = this.bigBallDiamondPrefab || this.bigBallSquarePrefab;
                 break;
         }
-        
+
         if (!prefab || !this.bigBallsContainer) {
             return null;
         }
@@ -323,22 +352,12 @@ export class BallManager extends Component {
         return bigBall;
     }
 
-    removeBigBall(ball: BigBall) {
-        const layer = ball.layer;
-        const layerBalls = this._bigBalls[layer - 1];
-        const index = layerBalls.indexOf(ball);
-        
-        if (index !== -1) {
-            layerBalls.splice(index, 1);
-        }
-    }
-
     moveAllBigBallsUp(): boolean {
         let gameOver = false;
 
         for (let layer = GameConfig.BIG_BALL_LAYERS; layer >= 1; layer--) {
             const layerBalls = this._bigBalls[layer - 1];
-            
+
             for (const ball of layerBalls) {
                 if (ball.moveUp()) {
                     gameOver = true;
@@ -352,30 +371,30 @@ export class BallManager extends Component {
         }
 
         this.updateBigBallPositions();
-        
+
         // 待获得小球也上移一层
         this.movePendingBallsUp();
-        
+
         return gameOver;
     }
-    
+
     // 待获得小球上移一层
     private movePendingBallsUp() {
         const layerHeight = GameConfig.LAYER_HEIGHT_4;  // 使用统一的层高
         const ballsToRemove: SmallBall[] = [];
-        
+
         // 计算第9层的Y坐标（超过这个就销毁）
         const layer9Y = GameConfig.COLLISION_AREA_BOTTOM + (GameConfig.FAIL_LAYER - 0.5) * layerHeight;
-        
+
         for (const ball of this._pendingBalls) {
             if (!ball || !ball.node || !ball.node.isValid) {
                 ballsToRemove.push(ball);
                 continue;
             }
-            
+
             const pos = ball.node.position;
             const newY = pos.y + layerHeight;
-            
+
             if (newY >= layer9Y) {
                 ball.node.destroy();
                 ballsToRemove.push(ball);
@@ -383,7 +402,7 @@ export class BallManager extends Component {
                 ball.node.setPosition(pos.x, newY, pos.z);
             }
         }
-        
+
         // 移除已销毁的球
         for (const ball of ballsToRemove) {
             const index = this._pendingBalls.indexOf(ball);
@@ -395,12 +414,12 @@ export class BallManager extends Component {
 
     private updateBigBallPositions() {
         const baseY = GameConfig.COLLISION_AREA_BOTTOM + GameConfig.BIG_BALL_BOTTOM_MARGIN;
-        
+
         for (let layer = 1; layer <= GameConfig.BIG_BALL_LAYERS; layer++) {
             const capacity = (layer % 2 === 1) ? GameConfig.LAYER_4_CAPACITY : GameConfig.LAYER_5_CAPACITY;
             const layerHeight = (capacity === 4) ? GameConfig.LAYER_HEIGHT_4 : GameConfig.LAYER_HEIGHT_5;
             const layerY = baseY + (layer - 0.5) * layerHeight;
-            
+
             for (const ball of this._bigBalls[layer - 1]) {
                 const pos = ball.node.position;
                 ball.node.setPosition(pos.x, layerY, pos.z);
@@ -436,7 +455,7 @@ export class BallManager extends Component {
                 ball.recycle();
             }
         }
-        
+
         // 同时处理待获得小球
         const pendingBallsCopy = [...this._pendingBalls];
         for (const ball of pendingBallsCopy) {
@@ -452,22 +471,22 @@ export class BallManager extends Component {
      */
     destroyBigBallsInRadius(center: Vec3, radius: number) {
         const ballsToDestroy: BigBall[] = [];
-        
+
         for (let layer = 0; layer < this._bigBalls.length; layer++) {
             for (const ball of this._bigBalls[layer]) {
                 if (!ball || !ball.node || !ball.node.isValid) continue;
-                
+
                 const ballPos = ball.node.worldPosition;
                 const dx = ballPos.x - center.x;
                 const dy = ballPos.y - center.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (distance <= radius) {
                     ballsToDestroy.push(ball);
                 }
             }
         }
-        
+
         // 延迟销毁，避免在遍历时修改数组
         this.scheduleOnce(() => {
             for (const ball of ballsToDestroy) {
@@ -483,19 +502,19 @@ export class BallManager extends Component {
      */
     destroyBigBallsInYRange(minY: number, maxY: number) {
         const ballsToDestroy: BigBall[] = [];
-        
+
         for (let layer = 0; layer < this._bigBalls.length; layer++) {
             for (const ball of this._bigBalls[layer]) {
                 if (!ball || !ball.node || !ball.node.isValid) continue;
-                
+
                 const ballY = ball.node.worldPosition.y;
-                
+
                 if (ballY >= minY && ballY <= maxY) {
                     ballsToDestroy.push(ball);
                 }
             }
         }
-        
+
         // 延迟销毁
         this.scheduleOnce(() => {
             for (const ball of ballsToDestroy) {
@@ -550,7 +569,7 @@ export class BallManager extends Component {
     destroyTopLayerBigBalls(layerCount: number) {
         const totalLayers = GameConfig.BIG_BALL_LAYERS;
         const ballsToDestroy: BigBall[] = [];
-        
+
         for (let i = 0; i < layerCount; i++) {
             const layerIndex = totalLayers - 1 - i; // 从最上层开始
             if (layerIndex >= 0) {
@@ -561,7 +580,7 @@ export class BallManager extends Component {
                 }
             }
         }
-        
+
         // 延迟销毁
         this.scheduleOnce(() => {
             for (const ball of ballsToDestroy) {
@@ -579,14 +598,14 @@ export class BallManager extends Component {
     destroyBigBallsInLayer(layer: number) {
         const layerIndex = layer - 1; // 转换为0-based索引
         if (layerIndex < 0 || layerIndex >= this._bigBalls.length) return;
-        
+
         const ballsToDestroy: BigBall[] = [];
         for (const ball of this._bigBalls[layerIndex]) {
             if (ball && ball.node && ball.node.isValid) {
                 ballsToDestroy.push(ball);
             }
         }
-        
+
         // 立即销毁（不延迟，因为激光动画需要即时反馈）
         for (const ball of ballsToDestroy) {
             if (ball && ball.node && ball.node.isValid) {
@@ -605,12 +624,12 @@ export class BallManager extends Component {
         const capacity = (layer % 2 === 1) ? GameConfig.LAYER_4_CAPACITY : GameConfig.LAYER_5_CAPACITY;
         const spacing = (capacity === 4) ? GameConfig.BIG_BALL_SPACING_4 : GameConfig.BIG_BALL_SPACING_5;
         const layerY = this.getLayerY(layer);
-        
+
         const startX = -(capacity - 1) * spacing / 2;
         for (let i = 0; i < capacity; i++) {
             positions.push(new Vec3(startX + i * spacing, layerY, 0));
         }
-        
+
         return positions;
     }
 
@@ -641,16 +660,16 @@ export class BallManager extends Component {
     getEmptyPositionsInTopLayers(layerCount: number, occupiedPositions: Vec3[] = []): Vec3[] {
         const emptyPositions: Vec3[] = [];
         const totalLayers = GameConfig.BIG_BALL_LAYERS;
-        
+
         for (let i = 0; i < layerCount; i++) {
             const layer = totalLayers - i; // 从最上层开始（第8层、第7层...）
             if (layer < 1) continue;
-            
+
             const positions = this.getLayerPositions(layer);
             for (const pos of positions) {
                 // 检查是否被大球占用
                 if (this.isPositionOccupiedByBigBall(pos)) continue;
-                
+
                 // 检查是否被其他物体（如翻倍球）占用
                 let isOccupied = false;
                 for (const occupied of occupiedPositions) {
@@ -661,13 +680,13 @@ export class BallManager extends Component {
                         break;
                     }
                 }
-                
+
                 if (!isOccupied) {
                     emptyPositions.push(pos);
                 }
             }
         }
-        
+
         return emptyPositions;
     }
 }

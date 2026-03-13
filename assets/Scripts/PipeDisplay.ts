@@ -56,9 +56,12 @@ export class PipeDisplay extends Component {
         const pipeBalls = gameManager.pipeBalls;
         const visibleCount = Math.min(pipeBalls.length, GameConfig.VISIBLE_PIPE_SLOTS);
 
+        console.log(`[PipeDisplay] updateDisplay - pipeBalls: [${pipeBalls.join(',')}], visibleCount: ${visibleCount}, _ballNodes.length: ${this._ballNodes.length}, ballContainer: ${this.ballContainer ? this.ballContainer.name : 'null'}`);
+
         // 清除多余的显示节点
         while (this._ballNodes.length > visibleCount) {
             const node = this._ballNodes.pop();
+            console.log(`[PipeDisplay] 移除多余节点: ${node?.name}`);
             if (node && node.isValid) {
                 node.destroy();
             }

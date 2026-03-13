@@ -169,6 +169,10 @@ export class GameConfig {
         sortPipe: 0     // 整理管道初始数量
     };
     
+    // ==================== 排行榜 / 云存储 ====================
+    /** 微信托管数据 key：分数（用于好友排行榜） */
+    static readonly CLOUD_STORAGE_KEY_SCORE = 'score';
+    
     // ==================== 游戏加速设置 ====================
     // 防止小球卡住导致玩家等待过久，发射后逐渐加速
     // static readonly GAME_SPEED_UP_INTERVAL = 3;     // 加速间隔（秒）已弃用

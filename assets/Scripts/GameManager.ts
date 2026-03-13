@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, director, PhysicsSystem2D } from 'cc';
+import { _decorator, Component, Node, director, PhysicsSystem2D, sys } from 'cc';
 import { GameConfig } from './GameConfig';
 import { BallManager } from './BallManager';
 import { PipeDisplay } from './PipeDisplay';
@@ -6,6 +6,8 @@ import { IdleSlotDisplay } from './IdleSlotDisplay';
 import { PipeAnimator } from './PipeAnimator';
 import { ScoreDisplay } from './ScoreDisplay';
 import { ItemManager } from './ItemManager';
+import { GameOverUI } from './GameOverUI';
+import { LeaderboardManager } from './LeaderboardManager';
 
 const { ccclass, property } = _decorator;
 
@@ -58,8 +60,12 @@ export class GameManager extends Component {
     
     @property(Node)
     scoreDisplayNode: Node = null;
+    
+    @property(Node)
+    gameOverUINode: Node = null;
 
     private _pipeDisplay: PipeDisplay = null;
+    private _gameOverUI: GameOverUI = null;
     private _idleSlotDisplay: IdleSlotDisplay = null;
     private _pipeAnimator: PipeAnimator = null;
     private _scoreDisplay: ScoreDisplay = null;
@@ -113,9 +119,15 @@ export class GameManager extends Component {
     }
 
     start() {
-        // 获取 PipeDisplay 组件
+        // 获取 PipeDisplay 组件（获取启用的那个，因为节点上可能有多个）
         if (this.pipeNode) {
-            this._pipeDisplay = this.pipeNode.getComponent(PipeDisplay);
+            const pipeDisplays = this.pipeNode.getComponents(PipeDisplay);
+            for (const pd of pipeDisplays) {
+                if (pd.enabled) {
+                    this._pipeDisplay = pd;
+                    break;
+                }
+            }
         }
         
         // 获取 IdleSlotDisplay 组件
@@ -134,6 +146,11 @@ export class GameManager extends Component {
         // 获取 ScoreDisplay 组件
         if (this.scoreDisplayNode) {
             this._scoreDisplay = this.scoreDisplayNode.getComponent(ScoreDisplay);
+        }
+        
+        // 获取 GameOverUI 组件
+        if (this.gameOverUINode) {
+            this._gameOverUI = this.gameOverUINode.getComponent(GameOverUI);
         }
         
         this.initGame();
@@ -662,8 +679,74 @@ export class GameManager extends Component {
         return false;
     }
 
+    private static readonly HIGH_SCORE_KEY = 'tanqiu2048_high_score';
+    
     private onGameOver() {
         console.log(`游戏结束！最终分数: ${this._totalScore}, 最大小球: ${this._maxBallValue}`);
+        
+        // 写入微信云托管（用于好友排行榜）
+        const leaderboard = LeaderboardManager.instance;
+        if (leaderboard && leaderboard.isWxCloudAvailable()) {
+            leaderboard.saveScoreToCloud(this._totalScore);
+        }
+        
+        // 获取并更新最高分
+        const highScore = this.loadHighScore();
+        const isNewRecord = this._totalScore > highScore;
+        if (isNewRecord) {
+            this.saveHighScore(this._totalScore);
+        }
+        
+        // 显示游戏结束UI
+        if (this._gameOverUI) {
+            this._gameOverUI.show(
+                this._totalScore,
+                isNewRecord ? this._totalScore : highScore,
+                this._maxBallValue,
+                this._currentRound,
+                isNewRecord
+            );
+        }
+    }
+    
+    /**
+     * 加载最高分
+     */
+    private loadHighScore(): number {
+        const saved = sys.localStorage.getItem(GameManager.HIGH_SCORE_KEY);
+        return saved ? (parseInt(saved) || 0) : 0;
+    }
+    
+    /**
+     * 保存最高分
+     */
+    private saveHighScore(score: number) {
+        sys.localStorage.setItem(GameManager.HIGH_SCORE_KEY, score.toString());
+    }
+    
+    /**
+     * 重新开始游戏
+     */
+    public restartGame() {
+        // 清理所有大球和小球
+        const ballManager = BallManager.instance;
+        if (ballManager) {
+            ballManager.clearAllBalls();
+        }
+        
+        // 重置游戏状态
+        this.initGame();
+        
+        // 刷新分数显示
+        if (this._scoreDisplay) {
+            this._scoreDisplay.refreshDisplay();
+        }
+        
+        // 更新道具按钮状态
+        const itemManager = ItemManager.instance;
+        if (itemManager) {
+            itemManager.updateButtonStates();
+        }
     }
 
     /**
