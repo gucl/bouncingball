@@ -27,7 +27,7 @@ export class IdleSlotDisplay extends Component {
     countLabel: Label = null;
 
     @property({ tooltip: '闲置位X坐标（与管道垂直段对齐）' })
-    posX: number = -300;
+    posX: number = -350;
 
     @property({ tooltip: '闲置位Y坐标（与底部墙壁齐平）' })
     posY: number = -550;

@@ -10,7 +10,7 @@ export class GameConfig {
     // ==================== 物理系统设置 ====================
     static readonly GRAVITY_X = 0;                   // 重力X分量
     static readonly GRAVITY_Y = -800;                // 重力Y分量（负值向下）
-    
+
     // ==================== 碰撞分组设置 ====================
     // 所有物体使用默认分组，通过代码逻辑控制碰撞行为
     static readonly GROUP_DEFAULT = 1 << 0;          // 默认分组
@@ -21,12 +21,12 @@ export class GameConfig {
     static readonly VISIBLE_PIPE_SLOTS = 12;         // 可见小球数（水平段+垂直段）
     static readonly INITIAL_SMALL_BALLS = [8, 4, 2]; // 初始小球数值
     static readonly PIPE_CAPACITY_INCREASE = 1;      // 每次看广告增加的管道容量
-    
+
     // ==================== 发射口位置设置 ====================
     // 注意：发射口位置应该与 PipeDisplay 中的 horizontalY 保持一致
     // 同时需要在编辑器中将 Launcher 节点的 Y 坐标设置为此值
     static readonly LAUNCH_POS_X = 0;                // 发射口X坐标（屏幕中间）
-    static readonly LAUNCH_POS_Y = 450;              // 发射口Y坐标（与管道水平段同高度）
+    static readonly LAUNCH_POS_Y = 265;              // 发射口Y坐标（与管道水平段同高度）
 
     // ==================== 小球物理设置 ====================
     static readonly BALL_LAUNCH_INTERVAL = 0.2;      // 发射间隔（秒）
@@ -43,7 +43,7 @@ export class GameConfig {
     static readonly BIG_BALL_FRICTION = 0;           // 大球摩擦力
     static readonly BIG_BALL_HIT_COOLDOWN = 0.05;     // 同一小球对同一大球的碰撞冷却时间（秒）
     static readonly BIG_BALL_BOUNCE_SPEED = 40;      // 大球弹射速度（保底速度，防止小球卡在大球上）
-    
+
     // ==================== 大球碰撞动效设置 ====================
     static readonly BIG_BALL_HIT_SCALE_MAX = 1.2;    // 大球被碰撞时的最大放大倍数
     static readonly BIG_BALL_HIT_SCALE_MIN = 1.0;    // 大球被碰撞后恢复的缩放倍数
@@ -71,7 +71,7 @@ export class GameConfig {
     static readonly BIG_BALL_RADIUS_DIAMOND = 28;    // 菱形大球半边长（旋转45度的方形）
     static readonly BIG_BALL_SPACING_4 = 95;        // 4容量层大球之间的水平间距
     static readonly BIG_BALL_SPACING_5 = 95;         // 5容量层大球之间的水平间距
-    
+
     // ==================== 大球数量权重配置 ====================
     // 4容量层大球数量权重配置
     // 格式：{ 数量: 权重 }
@@ -81,7 +81,7 @@ export class GameConfig {
         3: 25,   // 3个大球，权重30
         4: 15,   // 4个大球，权重50
     };
-    
+
     // 5容量层大球数量权重配置
     static readonly LAYER_5_BALL_COUNT_WEIGHTS: { [count: number]: number } = {
         1: 10,    // 1个大球，权重5
@@ -90,12 +90,12 @@ export class GameConfig {
         4: 20,   // 4个大球，权重35
         5: 15,   // 5个大球，权重25
     };
-    
+
     // 上一行大球数量少于阈值时，提高最大数权重的配置
     static readonly LAYER_4_LOW_COUNT_THRESHOLD = 2;  // 4容量层：上一行少于2个时触发
     static readonly LAYER_5_LOW_COUNT_THRESHOLD = 2;  // 5容量层：上一行少于2个时触发
     static readonly LOW_COUNT_MAX_WEIGHT_BOOST = 50;  // 最大数权重提升量
-    
+
     // ==================== 大球形状随机权重配置 ====================
     // 格式：{ 形状索引: 权重 }
     // 形状索引：0=圆形, 1=方形, 2=菱形
@@ -105,20 +105,20 @@ export class GameConfig {
         1: 0,   // 方形权重
         2: 10,   // 菱形权重
     };
-    
+
     /**
      * 根据权重随机生成大球形状
      * @returns 形状索引（0=圆形, 1=方形, 2=菱形）
      */
     static generateBigBallShape(): number {
         const weights = this.BIG_BALL_SHAPE_WEIGHTS;
-        
+
         // 计算权重总和
         let totalWeight = 0;
         for (const shape in weights) {
             totalWeight += weights[shape];
         }
-        
+
         // 随机选择
         let random = Math.random() * totalWeight;
         for (const shapeStr in weights) {
@@ -129,7 +129,7 @@ export class GameConfig {
                 return shape;
             }
         }
-        
+
         // 默认返回圆形
         return 0;
     }
@@ -140,27 +140,27 @@ export class GameConfig {
     static readonly BOUNDARY_RIGHT = 220;            // 右边界X坐标
     static readonly BOUNDARY_TOP = 500;              // 顶部边界Y坐标
     static readonly BOUNDARY_BOTTOM = -510;          // 底部边界Y坐标（触发回收）
-    
+
     // ==================== 道具系统设置 ====================
     // 一键收球
     static readonly QUICK_RECALL_COOLDOWN = 5;      // 一键收球冷却时间（秒），发射后需等待此时间才能使用
-    
+
     // 炸弹球
     static readonly BOMB_EXPLOSION_RADIUS = 200;     // 炸弹爆炸半径（像素）
     static readonly BOMB_BALL_SPEED = 50;           // 炸弹球飞行速度（不受重力影响）
     static readonly BOMB_BALL_RADIUS = 35;           // 炸弹球半径
-    
+
     // 翻倍球
     static readonly DOUBLE_BALL_RADIUS = 33;         // 翻倍球半径
     static readonly DOUBLE_BALL_HIT_COUNT = 3;       // 翻倍球可被碰撞次数
     static readonly DOUBLE_BALL_FLY_SPEED = 3000;     // 翻倍球飞入速度（像素/秒）
     static readonly DOUBLE_BALL_PRIORITY_LAYERS = 4; // 翻倍球优先放置的层数（从上往下）
-    
+
     // 激光
     static readonly LASER_SWEEP_LAYERS = 4;          // 激光扫过的层数
     static readonly LASER_SWEEP_DURATION = 1.5;      // 激光扫描动画时长（秒）
     static readonly LASER_WIDTH = 20;                // 激光宽度
-    
+
     // 道具初始数量（用于新玩家或测试）
     static readonly INITIAL_ITEM_COUNTS = {
         bomb: 0,        // 炸弹球初始数量
@@ -168,11 +168,11 @@ export class GameConfig {
         laser: 0,       // 激光初始数量
         sortPipe: 0     // 整理管道初始数量
     };
-    
+
     // ==================== 排行榜 / 云存储 ====================
     /** 微信托管数据 key：分数（用于好友排行榜） */
     static readonly CLOUD_STORAGE_KEY_SCORE = 'score';
-    
+
     // ==================== 游戏加速设置 ====================
     // 防止小球卡住导致玩家等待过久，发射后逐渐加速
     // static readonly GAME_SPEED_UP_INTERVAL = 3;     // 加速间隔（秒）已弃用
@@ -187,7 +187,7 @@ export class GameConfig {
         [42, 32],    // 75秒开始，32倍速
         [45, 64],    // 90秒开始，64倍速
     ];
-    
+
     /**
      * 根据发射后经过的时间获取游戏速度倍数
      * @param elapsedTime 发射后经过的时间（秒）
@@ -219,7 +219,7 @@ export class GameConfig {
     // ==================== 合成设置 ====================
     static readonly MERGE_ANIMATION_DURATION = 0.2;  // 合成动画时长（秒）- 已废弃，使用下方新参数
     static readonly AD_TRIGGER_VALUE = 32;           // 触发广告的最小合成值
-    
+
     // ==================== 待获得小球产出设置 ====================
     // 大球销毁后产出待获得小球的概率配置（根据回合数）
     // 格式：{ 回合数阈值: 概率 }
@@ -231,17 +231,17 @@ export class GameConfig {
         7: 0.35,  // 回合7-8：35%概率
         9: 0.3,   // 回合9+：30%概率
     };
-    
+
     // 未产出待获得小球时的概率递增配置
     static readonly PENDING_BALL_SPAWN_CHANCE_INCREMENT = 0.08;  // 每次未产出时增加的概率
     static readonly PENDING_BALL_SPAWN_CHANCE_MAX = 1.0;        // 概率上限（100%必定产出）
-    
+
     // 当前概率加成（运行时变量，由 BallManager 管理）
     static currentSpawnChanceBonus: number = 0;
-    
+
     // 当前回合数（由GameManager在每回合开始时更新）
     static currentRound: number = 1;
-    
+
     /**
      * 获取当前回合的待获得小球产出基础概率
      */
@@ -255,7 +255,7 @@ export class GameConfig {
         }
         return this.PENDING_BALL_SPAWN_CHANCE_BY_ROUND[bestThreshold];
     }
-    
+
     /**
      * 判断大球销毁后是否产出待获得小球（带概率递增机制）
      * @returns true表示产出，false表示不产出
@@ -263,7 +263,7 @@ export class GameConfig {
     static shouldSpawnPendingBall(): boolean {
         const baseChance = this.getSpawnChanceByRound(this.currentRound);
         const finalChance = Math.min(baseChance + this.currentSpawnChanceBonus, this.PENDING_BALL_SPAWN_CHANCE_MAX);
-        
+
         if (Math.random() < finalChance) {
             // 产出成功，重置概率加成
             this.currentSpawnChanceBonus = 0;
@@ -274,14 +274,14 @@ export class GameConfig {
             return false;
         }
     }
-    
+
     /**
      * 重置产出概率加成（游戏重新开始时调用）
      */
     static resetSpawnChanceBonus() {
         this.currentSpawnChanceBonus = 0;
     }
-    
+
     // 待获得小球数值权重配置
     // 格式：{ 回合数阈值: { 数值: 权重 } }
     // 当回合数 >= 阈值时使用该配置，取最大的满足条件的阈值
@@ -322,7 +322,7 @@ export class GameConfig {
             128: 5,
         },
     };
-    
+
     // ==================== 待获得小球动态成长设置 ====================
     // 当回合数超过配置的最大回合数后，每隔N回合自动成长一次
     static readonly PENDING_BALL_GROWTH_START_ROUND = 15;  // 动态成长开始的回合数（应与PENDING_BALL_VALUE_WEIGHTS最大阈值一致）
@@ -330,12 +330,12 @@ export class GameConfig {
     // 成长时新数值的初始权重序列（循环使用）
     // 例如：[5, 10, 20] 表示新数值第1次出现权重5，第2次成长后权重10，第3次成长后权重15，第4次成长后权重20，之后保持20
     static readonly PENDING_BALL_GROWTH_WEIGHTS: number[] = [5, 10, 15, 20];
-    
+
     // ==================== 小球回收动画设置 ====================
     static readonly BALL_RECYCLE_SPEED = 5000;        // 小球回收飞行速度（像素/秒）
-    static readonly PIPE_CORNER_X = -300;            // 管道L形转弯点X坐标（与PipeDisplay的getLeftmostX一致）
-    static readonly PIPE_HORIZONTAL_Y = 450;         // 管道水平段Y坐标（与LAUNCH_POS_Y一致）
-    
+    static readonly PIPE_CORNER_X = -350;            // 管道L形转弯点X坐标（与PipeDisplay的getLeftmostX一致）
+    static readonly PIPE_HORIZONTAL_Y = 265;         // 管道水平段Y坐标（与LAUNCH_POS_Y一致）
+
     // ==================== 小球合成动画设置 ====================
     static readonly BALL_MERGE_MOVE_SPEED = 1000;     // 小球合成时移动速度（像素/秒）
     static readonly BALL_MERGE_SCALE_MAX = 1.4;      // 小球合成时最大放大倍数
@@ -384,13 +384,13 @@ export class GameConfig {
     // 在此回合之前，仅使用基础回合规则（规则A）
     // 达到此回合后，取规则A和规则B（基于管道总值的动态规则）中较高的值
     static readonly DYNAMIC_RULE_START_ROUND = 4;
-    
+
     // 动态提升分阶段过渡配置
     // 格式：[阶段1比例, 阶段2比例, ...]
     // 例如 [0.5, 1.0] 表示：第1回合提升到目标值的50%，第2回合提升到100%
     // [1.0] 表示立即生效（无过渡）
     static readonly DYNAMIC_RULE_TRANSITION_STAGES: number[] = [0.5, 1.0];
-    
+
     // 动态规则过渡状态（运行时变量）
     private static _dynamicRuleTargetRange: [number, number] | null = null;  // 目标指数范围
     private static _dynamicRuleBaseRange: [number, number] | null = null;    // 过渡开始时的基础范围
@@ -410,7 +410,7 @@ export class GameConfig {
         if (round <= 15) return [10, 12];    // 1024-4096
         if (round <= 18) return [11, 13];    // 2048-8192
         if (round <= 21) return [12, 14];    // 4096-16384
-        
+
         const extraLevels = Math.floor((round - 21) / 5);
         const minExp = 13 + extraLevels;
         const maxExp = 15 + extraLevels;
@@ -425,7 +425,7 @@ export class GameConfig {
         const n = Math.floor(Math.log2(pipeSum));
         return [n + 2, n + 3];
     }
-    
+
     /**
      * 重置动态规则过渡状态（游戏重新开始时调用）
      */
@@ -435,7 +435,7 @@ export class GameConfig {
         this._dynamicRuleCurrentStage = 0;
         this._lastUsedRange = null;
     }
-    
+
     /**
      * 推进动态规则过渡阶段（每回合结束时调用）
      */
@@ -458,23 +458,23 @@ export class GameConfig {
      */
     static getBigBallExponentRange(round: number, pipeSum: number): [number, number] {
         const baseRange = this.getBaseExponentRange(round);
-        
+
         // 未达到动态规则生效回合，仅使用基础规则
         if (round < this.DYNAMIC_RULE_START_ROUND) {
             this._lastUsedRange = baseRange;
             return baseRange;
         }
-        
+
         // 计算动态规则的目标范围
         const dynamicRange = this.getDynamicExponentRange(pipeSum);
-        
+
         // 如果动态规则没有更高的值，使用基础规则（但不低于上次使用的范围）
         if (!dynamicRange || dynamicRange[0] <= baseRange[0]) {
             const result = this.ensureNoRegression(baseRange);
             this._lastUsedRange = result;
             return result;
         }
-        
+
         // 检查是否需要开始新的过渡（目标范围提升了）
         if (this._dynamicRuleTargetRange === null || dynamicRange[0] > this._dynamicRuleTargetRange[0]) {
             // 新的更高目标，开始过渡
@@ -483,28 +483,28 @@ export class GameConfig {
             this._dynamicRuleTargetRange = dynamicRange;
             this._dynamicRuleCurrentStage = 0;
         }
-        
+
         // 计算当前阶段的实际范围
         const stages = this.DYNAMIC_RULE_TRANSITION_STAGES;
         const stageRatio = stages[Math.min(this._dynamicRuleCurrentStage, stages.length - 1)];
-        
+
         const startRange = this._dynamicRuleBaseRange || baseRange;
         const targetRange = this._dynamicRuleTargetRange;
-        
+
         const minExp = Math.round(startRange[0] + (targetRange[0] - startRange[0]) * stageRatio);
         const maxExp = Math.round(startRange[1] + (targetRange[1] - startRange[1]) * stageRatio);
-        
+
         // 确保不低于基础规则，也不低于上次使用的范围
         const result: [number, number] = [
             Math.max(minExp, baseRange[0]),
             Math.max(maxExp, baseRange[1])
         ];
-        
+
         const finalResult = this.ensureNoRegression(result);
         this._lastUsedRange = finalResult;
         return finalResult;
     }
-    
+
     /**
      * 确保数值范围不会倒退（不低于上一回合使用的范围）
      */
@@ -537,24 +537,24 @@ export class GameConfig {
      */
     static generateBigBallCount(layerCapacity: number, previousLayerBallCount: number = -1): number {
         // 复制权重配置（避免修改原配置）
-        const weights: { [count: number]: number } = layerCapacity === 4 ? 
-            { ...this.LAYER_4_BALL_COUNT_WEIGHTS } : 
+        const weights: { [count: number]: number } = layerCapacity === 4 ?
+            { ...this.LAYER_4_BALL_COUNT_WEIGHTS } :
             { ...this.LAYER_5_BALL_COUNT_WEIGHTS };
-        
+
         // 检查是否需要提高最大数权重
-        const threshold = layerCapacity === 4 ? 
-            this.LAYER_4_LOW_COUNT_THRESHOLD : 
+        const threshold = layerCapacity === 4 ?
+            this.LAYER_4_LOW_COUNT_THRESHOLD :
             this.LAYER_5_LOW_COUNT_THRESHOLD;
-        
+
         if (previousLayerBallCount >= 0 && previousLayerBallCount < threshold) {
             const maxCount = layerCapacity;
             weights[maxCount] = (weights[maxCount] || 0) + this.LOW_COUNT_MAX_WEIGHT_BOOST;
         }
-        
+
         // 根据权重随机选择
         return this.weightedRandomSelect(weights);
     }
-    
+
     /**
      * 根据权重随机选择
      * @param weights 权重配置 { 值: 权重 }
@@ -565,7 +565,7 @@ export class GameConfig {
         for (const key in weights) {
             totalWeight += weights[key];
         }
-        
+
         let random = Math.random() * totalWeight;
         for (const keyStr in weights) {
             const key = parseInt(keyStr);
@@ -575,11 +575,11 @@ export class GameConfig {
                 return key;
             }
         }
-        
+
         // 默认返回第一个键值（理论上不会执行到这里）
         return parseInt(Object.keys(weights)[0]);
     }
-    
+
     /**
      * 获取当前回合对应的权重配置
      * 根据当前回合数找到最大的满足条件的阈值
@@ -588,7 +588,7 @@ export class GameConfig {
     static getCurrentWeights(): { [value: number]: number } {
         const round = this.currentRound;
         let bestThreshold = 1;
-        
+
         // 找到最大的满足条件的阈值
         for (const thresholdStr in this.PENDING_BALL_VALUE_WEIGHTS) {
             const threshold = parseInt(thresholdStr);
@@ -596,27 +596,27 @@ export class GameConfig {
                 bestThreshold = threshold;
             }
         }
-        
+
         // 获取基础权重配置（复制一份，避免修改原配置）
         const baseWeights = { ...this.PENDING_BALL_VALUE_WEIGHTS[bestThreshold] };
-        
+
         // 如果未达到动态成长开始回合，直接返回基础配置
         if (round < this.PENDING_BALL_GROWTH_START_ROUND) {
             return baseWeights;
         }
-        
+
         // 计算已经成长了多少次
         const roundsAfterGrowthStart = round - this.PENDING_BALL_GROWTH_START_ROUND;
         const growthCount = Math.floor(roundsAfterGrowthStart / this.PENDING_BALL_GROWTH_INTERVAL);
-        
+
         if (growthCount <= 0) {
             return baseWeights;
         }
-        
+
         // 应用动态成长
         return this.applyDynamicGrowth(baseWeights, growthCount);
     }
-    
+
     /**
      * 应用动态成长规则
      * @param baseWeights 基础权重配置
@@ -627,15 +627,15 @@ export class GameConfig {
         const result: { [value: number]: number } = {};
         const growthWeights = this.PENDING_BALL_GROWTH_WEIGHTS;
         const maxGrowthWeight = growthWeights[growthWeights.length - 1];
-        
+
         // 获取基础配置中的所有数值，并排序
         const baseValues = Object.keys(baseWeights).map(v => parseInt(v)).sort((a, b) => a - b);
         const maxBaseValue = baseValues[baseValues.length - 1];
-        
+
         // 计算需要新增多少个更大的数值
         // 每次成长新增1个数值
         const newValuesCount = growthCount;
-        
+
         // 生成新的数值列表（在最大值基础上翻倍）
         const allValues = [...baseValues];
         let nextValue = maxBaseValue * 2;
@@ -643,14 +643,14 @@ export class GameConfig {
             allValues.push(nextValue);
             nextValue *= 2;
         }
-        
+
         // 为每个数值计算权重
         // 原有数值：根据成长次数提升权重等级
         // 新增数值：根据其"年龄"（被添加后经过的成长次数）分配权重
         for (let i = 0; i < allValues.length; i++) {
             const value = allValues[i];
             const isNewValue = baseValues.indexOf(value) === -1;
-            
+
             if (!isNewValue) {
                 // 原有数值：找到它在基础配置中的位置，然后根据成长次数提升
                 const originalIndex = baseValues.indexOf(value);
@@ -664,33 +664,33 @@ export class GameConfig {
                 const newValueIndex = allValues.indexOf(value) - baseValues.length;
                 // 计算这个新数值已经存在了多少次成长周期
                 const ageInGrowthCycles = growthCount - newValueIndex - 1;
-                
+
                 if (ageInGrowthCycles < 0) {
                     // 这个数值还没被添加（理论上不会发生）
                     continue;
                 }
-                
+
                 // 根据年龄从 growthWeights 中获取权重
                 const weightIndex = Math.min(ageInGrowthCycles, growthWeights.length - 1);
                 result[value] = growthWeights[weightIndex];
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * 生成待获得小球的数值（基于权重）
      */
     static generatePendingBallValue(): number {
         const weights = this.getCurrentWeights();
-        
+
         // 计算权重总和
         let totalWeight = 0;
         for (const value in weights) {
             totalWeight += weights[value];
         }
-        
+
         // 随机选择
         let random = Math.random() * totalWeight;
         for (const valueStr in weights) {
@@ -701,7 +701,7 @@ export class GameConfig {
                 return value;
             }
         }
-        
+
         // 默认返回最小值（理论上不会执行到这里）
         return 2;
     }

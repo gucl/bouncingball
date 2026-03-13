@@ -313,8 +313,8 @@ if (pos.y > BOUNDARY_TOP && velocity.y > 0) {
 ```typescript
 // 动画参数
 BALL_RECYCLE_SPEED = 5000;  // 回收飞行速度（像素/秒）
-PIPE_CORNER_X = -300;       // L形转弯点X坐标
-PIPE_HORIZONTAL_Y = 450;    // 水平段Y坐标
+PIPE_CORNER_X = -350;       // L形转弯点X坐标
+PIPE_HORIZONTAL_Y = 265;    // 水平段Y坐标
 
 // 动画路径计算
 playRecycleAnimation(startX, startY, value, targetIndex, onComplete) {

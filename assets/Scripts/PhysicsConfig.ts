@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 @ccclass('PhysicsConfig')
 export class PhysicsConfig extends Component {
     @property({ tooltip: '是否启用物理调试绘制' })
-    enableDebugDraw: boolean = true;
+    enableDebugDraw: boolean = false;
 
     onLoad() {
         this.initPhysics();
@@ -19,7 +19,7 @@ export class PhysicsConfig extends Component {
         physics.enable = true;
         physics.gravity = new Vec2(GameConfig.GRAVITY_X, GameConfig.GRAVITY_Y);
         physics.allowSleep = false;
-        physics.fixedTimeStep = 1/120;
+        physics.fixedTimeStep = 1 / 120;
         physics.maxSubSteps = 8;
 
         const matrix = physics.collisionMatrix;
@@ -28,7 +28,7 @@ export class PhysicsConfig extends Component {
         }
 
         if (this.enableDebugDraw) {
-            physics.debugDrawFlags = 
+            physics.debugDrawFlags =
                 EPhysics2DDrawFlags.Aabb |
                 EPhysics2DDrawFlags.Shape;
         }

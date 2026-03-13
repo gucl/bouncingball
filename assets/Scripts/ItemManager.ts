@@ -28,71 +28,71 @@ export class ItemManager extends Component {
     // ==================== 一键收球相关 ====================
     @property({ type: Node, tooltip: '一键收球按钮节点' })
     quickRecallButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '一键收球倒计时文本' })
     quickRecallLabel: Label = null;
-    
+
     private _quickRecallTimer: number = 0;
     private _isQuickRecallAvailable: boolean = false;
-    
+
     // ==================== 炸弹球相关 ====================
     @property({ type: Prefab, tooltip: '炸弹球预制体' })
     bombBallPrefab: Prefab = null;
-    
+
     @property({ type: Node, tooltip: '炸弹球按钮节点' })
     bombButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '炸弹球数量/广告显示标签' })
     bombCountLabel: Label = null;
-    
+
     @property({ type: Node, tooltip: '发射口炸弹显示节点（放在发射口位置，默认隐藏）' })
     launcherBombDisplay: Node = null;
-    
+
     // ==================== 翻倍球相关 ====================
     @property({ type: Prefab, tooltip: '翻倍球预制体' })
     doubleBallPrefab: Prefab = null;
-    
+
     @property({ type: Node, tooltip: '翻倍球按钮节点' })
     doubleButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '翻倍球数量/广告显示标签' })
     doubleCountLabel: Label = null;
-    
+
     @property({ type: Node, tooltip: '翻倍球容器节点' })
     doubleBallContainer: Node = null;
-    
+
     private _activeDoubleBalls: Node[] = [];
     private _doubleBallTargetPositions: Vec3[] = [];  // 记录翻倍球的目标位置（包括飞行中的）
-    
+
     // ==================== 激光相关 ====================
     @property({ type: Node, tooltip: '激光按钮节点' })
     laserButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '激光数量/广告显示标签' })
     laserCountLabel: Label = null;
-    
+
     @property({ type: Node, tooltip: '激光效果节点' })
     laserEffectNode: Node = null;
-    
+
     // ==================== 整理管道相关 ====================
     @property({ type: Node, tooltip: '整理管道按钮节点' })
     sortPipeButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '整理管道数量/广告显示标签' })
     sortPipeCountLabel: Label = null;
-    
+
     // ==================== 增加管道容量相关 ====================
     @property({ type: Node, tooltip: '增加管道容量按钮节点（会跟随管道末尾移动）' })
     addCapacityButton: Node = null;
-    
+
     @property({ type: Label, tooltip: '当前管道容量显示' })
     capacityLabel: Label = null;
-    
+
     @property({ type: Node, tooltip: 'PipeDisplay所在节点（用于获取管道位置）' })
     pipeDisplayNode: Node = null;
-    
+
     private _pipeDisplay: PipeDisplay = null;
-    
+
     // ==================== 道具数量 ====================
     private _itemCounts: { [key: string]: number } = {
         [ItemType.BOMB]: 0,
@@ -100,7 +100,7 @@ export class ItemManager extends Component {
         [ItemType.LASER]: 0,
         [ItemType.SORT_PIPE]: 0
     };
-    
+
     // 本地存储键名
     private static readonly STORAGE_KEY = 'item_counts';
 
@@ -120,16 +120,16 @@ export class ItemManager extends Component {
         if (this.pipeDisplayNode) {
             this._pipeDisplay = this.pipeDisplayNode.getComponent(PipeDisplay);
         }
-        
+
         this.initButtons();
         this.updateQuickRecallUI();
         this.updateCapacityUI();
         this.updateAllItemCountUI();
         this.updateAddCapacityButtonPosition();
     }
-    
+
     // ==================== 道具数量管理 ====================
-    
+
     /**
      * 从本地存储加载道具数量
      */
@@ -156,7 +156,7 @@ export class ItemManager extends Component {
             console.error('[ItemManager] 加载道具数量失败:', e);
         }
     }
-    
+
     /**
      * 保存道具数量到本地存储
      */
@@ -167,14 +167,14 @@ export class ItemManager extends Component {
             console.error('[ItemManager] 保存道具数量失败:', e);
         }
     }
-    
+
     /**
      * 获取道具数量
      */
     public getItemCount(itemType: ItemType): number {
         return this._itemCounts[itemType] || 0;
     }
-    
+
     /**
      * 增加道具数量
      */
@@ -183,7 +183,7 @@ export class ItemManager extends Component {
         this.saveItemCounts();
         this.updateItemCountUI(itemType);
     }
-    
+
     /**
      * 消耗道具数量
      * @returns 是否成功消耗
@@ -197,7 +197,7 @@ export class ItemManager extends Component {
         }
         return false;
     }
-    
+
     /**
      * 更新所有道具数量UI
      */
@@ -207,14 +207,14 @@ export class ItemManager extends Component {
         this.updateItemCountUI(ItemType.LASER);
         this.updateItemCountUI(ItemType.SORT_PIPE);
     }
-    
+
     /**
      * 更新单个道具数量UI
      * 数量为0时显示广告图标文字，数量>=1时显示数量
      */
     private updateItemCountUI(itemType: ItemType) {
         let label: Label = null;
-        
+
         switch (itemType) {
             case ItemType.BOMB:
                 label = this.bombCountLabel;
@@ -229,9 +229,9 @@ export class ItemManager extends Component {
                 label = this.sortPipeCountLabel;
                 break;
         }
-        
+
         if (!label) return;
-        
+
         const count = this._itemCounts[itemType] || 0;
         if (count > 0) {
             label.string = count.toString();
@@ -247,7 +247,7 @@ export class ItemManager extends Component {
     private initButtons() {
         // 初始化按钮状态
         this.updateButtonStates();
-        
+
         // 确保发射口炸弹显示默认隐藏
         if (this.launcherBombDisplay) {
             this.launcherBombDisplay.active = false;
@@ -255,12 +255,12 @@ export class ItemManager extends Component {
     }
 
     // ==================== 按钮状态更新 ====================
-    
+
     public updateButtonStates() {
         const gm = GameManager.instance;
         const isReady = gm?.gameState === GameState.READY;
         const isBombMode = gm?.isBombMode || false;
-        
+
         // 炸弹、翻倍、激光、整理管道只能在准备状态使用
         // 炸弹模式下，炸弹按钮置灰
         if (this.bombButton) {
@@ -275,13 +275,13 @@ export class ItemManager extends Component {
         if (this.sortPipeButton) {
             this.setSortPipeButtonEnabled(isReady && !isBombMode);
         }
-        
+
         // 增加管道容量按钮：只在READY状态且未达到最大容量时可用
         if (this.addCapacityButton) {
             const canIncrease = gm?.canIncreasePipeCapacity() || false;
             this.setAddCapacityButtonEnabled(isReady && !isBombMode && canIncrease);
         }
-        
+
         // 更新容量显示
         this.updateCapacityUI();
     }
@@ -290,7 +290,7 @@ export class ItemManager extends Component {
         if (this.bombButton) {
             const sprite = this.bombButton.getComponent(Sprite);
             if (sprite) {
-                sprite.color = enabled ? Color.WHITE : new Color(128, 128, 128, 255);
+                sprite.color = enabled ? Color.WHITE : new Color(255, 87, 34, 255);
             }
         }
     }
@@ -299,7 +299,7 @@ export class ItemManager extends Component {
         if (this.doubleButton) {
             const sprite = this.doubleButton.getComponent(Sprite);
             if (sprite) {
-                sprite.color = enabled ? Color.WHITE : new Color(128, 128, 128, 255);
+                sprite.color = enabled ? Color.WHITE : new Color(255, 215, 0, 255);
             }
         }
     }
@@ -308,7 +308,7 @@ export class ItemManager extends Component {
         if (this.laserButton) {
             const sprite = this.laserButton.getComponent(Sprite);
             if (sprite) {
-                sprite.color = enabled ? Color.WHITE : new Color(128, 128, 128, 255);
+                sprite.color = enabled ? Color.WHITE : new Color(33, 150, 243, 255);
             }
         }
     }
@@ -317,11 +317,11 @@ export class ItemManager extends Component {
         if (this.sortPipeButton) {
             const sprite = this.sortPipeButton.getComponent(Sprite);
             if (sprite) {
-                sprite.color = enabled ? Color.WHITE : new Color(128, 128, 128, 255);
+                sprite.color = enabled ? Color.WHITE : new Color(156, 39, 176, 255);
             }
         }
     }
-    
+
     private setAddCapacityButtonEnabled(enabled: boolean) {
         if (this.addCapacityButton) {
             const sprite = this.addCapacityButton.getComponent(Sprite);
@@ -332,7 +332,7 @@ export class ItemManager extends Component {
     }
 
     // ==================== 一键收球功能 ====================
-    
+
     /**
      * 开始一键收球倒计时（在发射小球时调用）
      */
@@ -355,12 +355,12 @@ export class ItemManager extends Component {
         // 只在倒计时进行中才更新
         if (this._quickRecallTimer > 0) {
             this._quickRecallTimer -= deltaTime;
-            
+
             if (this._quickRecallTimer <= 0) {
                 this._quickRecallTimer = 0;
                 this._isQuickRecallAvailable = true;
             }
-            
+
             this.updateQuickRecallUI();
         }
     }
@@ -371,41 +371,42 @@ export class ItemManager extends Component {
     public onGameStateChanged(prevState: GameState, newState: GameState) {
         const wasWaiting = prevState === GameState.WAITING || prevState === GameState.LAUNCHING;
         const isWaiting = newState === GameState.WAITING || newState === GameState.LAUNCHING;
-        
+
         // 从等待状态变为非等待状态时，清空倒计时
         if (wasWaiting && !isWaiting) {
             this._quickRecallTimer = 0;
             this._isQuickRecallAvailable = false;
             this.updateQuickRecallUI();
         }
-        
+
         // 更新按钮状态
         this.updateButtonStates();
     }
 
     private updateQuickRecallUI() {
         if (!this.quickRecallLabel) return;
-        
+
         const gameState = GameManager.instance?.gameState;
         const isWaiting = gameState === GameState.WAITING || gameState === GameState.LAUNCHING;
-        
+
         if (!isWaiting) {
-            this.quickRecallLabel.string = '';
+            this.quickRecallLabel.node.active = false;
             if (this.quickRecallButton) {
                 const sprite = this.quickRecallButton.getComponent(Sprite);
-                if (sprite) sprite.color = new Color(128, 128, 128, 255);
+                if (sprite) sprite.color = new Color(76, 175, 80, 255);
             }
             return;
         }
-        
+
         if (this._quickRecallTimer > 0) {
+            this.quickRecallLabel.node.active = true;
             this.quickRecallLabel.string = Math.ceil(this._quickRecallTimer).toString();
             if (this.quickRecallButton) {
                 const sprite = this.quickRecallButton.getComponent(Sprite);
-                if (sprite) sprite.color = new Color(128, 128, 128, 255);
+                if (sprite) sprite.color = new Color(76, 175, 80, 255);
             }
         } else if (this._isQuickRecallAvailable) {
-            this.quickRecallLabel.string = '收球';
+            this.quickRecallLabel.node.active = false;
             if (this.quickRecallButton) {
                 const sprite = this.quickRecallButton.getComponent(Sprite);
                 if (sprite) sprite.color = Color.WHITE;
@@ -418,13 +419,13 @@ export class ItemManager extends Component {
      */
     public useQuickRecall() {
         if (!this._isQuickRecallAvailable) return;
-        
+
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.WAITING && gameState !== GameState.LAUNCHING) return;
-        
+
         this._isQuickRecallAvailable = false;
         this.updateQuickRecallUI();
-        
+
         // 让所有飞行中的小球立即回收
         const ballManager = BallManager.instance;
         if (ballManager) {
@@ -433,7 +434,7 @@ export class ItemManager extends Component {
     }
 
     // ==================== 炸弹球功能 ====================
-    
+
     /**
      * 使用炸弹球道具（点击按钮后调用）
      * 在发射口显示炸弹，等待玩家瞄准发射
@@ -443,9 +444,9 @@ export class ItemManager extends Component {
         if (!gm) return;
         if (gm.gameState !== GameState.READY) return;
         if (gm.isBombMode) return;
-        
+
         const count = this.getItemCount(ItemType.BOMB);
-        
+
         if (count > 0) {
             // 有道具，直接使用
             this.executeBombBall();
@@ -457,7 +458,7 @@ export class ItemManager extends Component {
             });
         }
     }
-    
+
     /**
      * 执行炸弹球效果（消耗道具或看完广告后调用）
      */
@@ -466,16 +467,16 @@ export class ItemManager extends Component {
         if (!gm) return;
         if (gm.gameState !== GameState.READY) return;
         if (gm.isBombMode) return;
-        
+
         // 如果有道具则消耗
         this.consumeItem(ItemType.BOMB);
-        
+
         gm.enterBombMode();
-        
+
         if (this.launcherBombDisplay) {
             this.launcherBombDisplay.active = true;
         }
-        
+
         this.updateButtonStates();
     }
 
@@ -485,14 +486,14 @@ export class ItemManager extends Component {
     public cancelBombMode() {
         const gm = GameManager.instance;
         if (!gm || !gm.isBombMode) return;
-        
+
         gm.exitBombMode();
-        
+
         // 隐藏发射口的炸弹
         if (this.launcherBombDisplay) {
             this.launcherBombDisplay.active = false;
         }
-        
+
         this.updateButtonStates();
     }
 
@@ -506,23 +507,23 @@ export class ItemManager extends Component {
     public launchBomb(direction: Vec2) {
         const gm = GameManager.instance;
         if (!gm || !gm.isBombMode || !this.bombBallPrefab) return;
-        
+
         if (this.launcherBombDisplay) {
             this.launcherBombDisplay.active = false;
         }
-        
+
         const bombNode = instantiate(this.bombBallPrefab);
         if (!bombNode) return;
-        
+
         const ballManager = BallManager.instance;
         bombNode.parent = (ballManager && ballManager.node) ? ballManager.node : this.node.parent;
         bombNode.setPosition(GameConfig.LAUNCH_POS_X, GameConfig.LAUNCH_POS_Y, 0);
-        
+
         const bombBall = bombNode.getComponent('BombBall');
         if (bombBall) {
             (bombBall as any).launch(direction);
         }
-        
+
         gm.exitBombMode();
         this.updateButtonStates();
     }
@@ -533,31 +534,31 @@ export class ItemManager extends Component {
     public explodeBomb(position: Vec3) {
         const radius = GameConfig.BOMB_EXPLOSION_RADIUS;
         const ballManager = BallManager.instance;
-        
+
         if (ballManager) {
             ballManager.destroyBigBallsInRadius(position, radius);
         }
     }
 
     // ==================== 翻倍球功能 ====================
-    
+
     /**
      * 使用翻倍球道具
      */
     public useDoubleBall() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         if (!this.doubleBallPrefab || !this.doubleBallContainer) return;
-        
+
         // 检查是否有空位
         const targetPosition = this.findDoubleBallPosition();
         if (!targetPosition) {
             return;
         }
-        
+
         const count = this.getItemCount(ItemType.DOUBLE);
-        
+
         if (count > 0) {
             // 有道具，直接使用
             this.executeDoubleBall();
@@ -568,58 +569,58 @@ export class ItemManager extends Component {
             });
         }
     }
-    
+
     /**
      * 执行翻倍球效果
      */
     private executeDoubleBall() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         if (!this.doubleBallPrefab || !this.doubleBallContainer) return;
-        
+
         // 获取翻倍球的目标位置
         const targetPosition = this.findDoubleBallPosition();
         if (!targetPosition) {
             return;
         }
-        
+
         // 消耗道具
         this.consumeItem(ItemType.DOUBLE);
-        
+
         // 立即记录目标位置，防止重复占用
         this._doubleBallTargetPositions.push(targetPosition.clone());
-        
+
         const doubleBallNode = instantiate(this.doubleBallPrefab);
         if (!doubleBallNode) {
             // 创建失败，移除已记录的位置
             this._doubleBallTargetPositions.pop();
             return;
         }
-        
+
         doubleBallNode.parent = this.doubleBallContainer;
         this._activeDoubleBalls.push(doubleBallNode);
-        
+
         // 从按钮位置开始飞入
-        const startPos = this.doubleButton ? 
-            this.doubleButton.worldPosition.clone() : 
+        const startPos = this.doubleButton ?
+            this.doubleButton.worldPosition.clone() :
             new Vec3(280, 100, 0);
-        
+
         // 转换为容器的本地坐标
         const localStartPos = this.doubleBallContainer.inverseTransformPoint(new Vec3(), startPos);
         doubleBallNode.setPosition(localStartPos.x, localStartPos.y, 0);
-        
+
         // 计算飞行时间
         const dx = targetPosition.x - localStartPos.x;
         const dy = targetPosition.y - localStartPos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const flyTime = distance / GameConfig.DOUBLE_BALL_FLY_SPEED;
-        
+
         // 播放飞入动画
         tween(doubleBallNode)
             .to(flyTime, { position: targetPosition })
             .start();
-        
+
         this.updateButtonStates();
     }
 
@@ -630,29 +631,29 @@ export class ItemManager extends Component {
     private findDoubleBallPosition(): Vec3 | null {
         const ballManager = BallManager.instance;
         if (!ballManager) return null;
-        
+
         // 使用目标位置数组来检查占用（包括飞行中的翻倍球）
         const occupiedPositions: Vec3[] = [...this._doubleBallTargetPositions];
-        
+
         // 先在优先层（上4层）查找
         let emptyPositions = ballManager.getEmptyPositionsInTopLayers(
-            GameConfig.DOUBLE_BALL_PRIORITY_LAYERS, 
+            GameConfig.DOUBLE_BALL_PRIORITY_LAYERS,
             occupiedPositions
         );
-        
+
         if (emptyPositions.length > 0) {
             // 随机选择一个空位
             const randomIndex = Math.floor(Math.random() * emptyPositions.length);
             return emptyPositions[randomIndex];
         }
-        
+
         // 优先层没有空位，继续往下找
         for (let layer = GameConfig.BIG_BALL_LAYERS - GameConfig.DOUBLE_BALL_PRIORITY_LAYERS; layer >= 1; layer--) {
             const positions = ballManager.getLayerPositions(layer);
             for (const pos of positions) {
                 // 检查是否被大球占用
                 if (ballManager.isPositionOccupiedByBigBall(pos)) continue;
-                
+
                 // 检查是否被翻倍球占用
                 let isOccupied = false;
                 for (const occupied of occupiedPositions) {
@@ -663,13 +664,13 @@ export class ItemManager extends Component {
                         break;
                     }
                 }
-                
+
                 if (!isOccupied) {
                     return pos;
                 }
             }
         }
-        
+
         // 全屏都被占满
         return null;
     }
@@ -699,22 +700,22 @@ export class ItemManager extends Component {
     }
 
     // ==================== 激光功能 ====================
-    
+
     /**
      * 使用激光道具
      */
     public useLaser() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         // 检查上4层是否有大球
         const ballManager = BallManager.instance;
         if (!ballManager || !ballManager.hasTopLayerBigBalls(GameConfig.LASER_SWEEP_LAYERS)) {
             return;
         }
-        
+
         const count = this.getItemCount(ItemType.LASER);
-        
+
         if (count > 0) {
             // 有道具，直接使用
             this.executeLaser();
@@ -725,22 +726,22 @@ export class ItemManager extends Component {
             });
         }
     }
-    
+
     /**
      * 执行激光效果
      */
     private executeLaser() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         const ballManager = BallManager.instance;
         if (!ballManager || !ballManager.hasTopLayerBigBalls(GameConfig.LASER_SWEEP_LAYERS)) {
             return;
         }
-        
+
         // 消耗道具
         this.consumeItem(ItemType.LASER);
-        
+
         // 播放激光动画并销毁大球
         this.playLaserAnimation();
     }
@@ -752,26 +753,26 @@ export class ItemManager extends Component {
         if (!ballManager) {
             return;
         }
-        
+
         const sweepLayers = GameConfig.LASER_SWEEP_LAYERS;
         const topLayer = GameConfig.BIG_BALL_LAYERS;
         const bottomLayer = topLayer - sweepLayers + 1;
-        
+
         const topLayerY = ballManager.getLayerY(topLayer);
         const bottomLayerY = ballManager.getLayerY(bottomLayer);
-        
+
         const startY = topLayerY + 50; // 从最上层上方开始
         const endY = bottomLayerY - 50; // 到目标层下方结束
-        
+
         if (!this.laserEffectNode) {
             // 没有激光效果节点，直接执行效果（一次性销毁）
             ballManager.destroyTopLayerBigBalls(sweepLayers);
             return;
         }
-        
+
         this.laserEffectNode.active = true;
         this.laserEffectNode.setPosition(0, startY, 0);
-        
+
         // 记录每层的Y坐标和对应的层号，用于逐层销毁
         const layerYPositions: { layer: number, y: number }[] = [];
         for (let layer = topLayer; layer >= bottomLayer; layer--) {
@@ -780,16 +781,16 @@ export class ItemManager extends Component {
                 y: ballManager.getLayerY(layer)
             });
         }
-        
+
         // 记录已销毁的层
         const destroyedLayers = new Set<number>();
-        
+
         // 使用 update 回调来检测激光位置并逐层销毁
         const checkAndDestroy = () => {
             if (!this.laserEffectNode || !this.laserEffectNode.active) return;
-            
+
             const laserY = this.laserEffectNode.position.y;
-            
+
             for (const { layer, y } of layerYPositions) {
                 // 当激光经过大球圆心时销毁该层
                 if (!destroyedLayers.has(layer) && laserY <= y) {
@@ -798,16 +799,16 @@ export class ItemManager extends Component {
                 }
             }
         };
-        
+
         // 启动定时检测
         this.schedule(checkAndDestroy, 0.016); // 约60fps检测
-        
+
         tween(this.laserEffectNode)
             .to(GameConfig.LASER_SWEEP_DURATION, { position: new Vec3(0, endY, 0) })
             .call(() => {
                 this.laserEffectNode.active = false;
                 this.unschedule(checkAndDestroy);
-                
+
                 // 确保所有目标层都被销毁（以防检测遗漏）
                 for (const { layer } of layerYPositions) {
                     if (!destroyedLayers.has(layer)) {
@@ -819,16 +820,16 @@ export class ItemManager extends Component {
     }
 
     // ==================== 整理管道功能 ====================
-    
+
     /**
      * 使用整理管道
      */
     public useSortPipe() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         const count = this.getItemCount(ItemType.SORT_PIPE);
-        
+
         if (count > 0) {
             // 有道具，直接使用
             this.executeSortPipe();
@@ -839,51 +840,51 @@ export class ItemManager extends Component {
             });
         }
     }
-    
+
     /**
      * 执行整理管道效果
      */
     private executeSortPipe() {
         const gameState = GameManager.instance?.gameState;
         if (gameState !== GameState.READY) return;
-        
+
         // 消耗道具
         this.consumeItem(ItemType.SORT_PIPE);
-        
+
         GameManager.instance?.sortPipeBalls();
     }
-    
+
     // ==================== 增加管道容量功能 ====================
-    
+
     /**
      * 更新管道容量UI显示
      */
     private updateCapacityUI() {
         if (!this.capacityLabel) return;
-        
+
         const gm = GameManager.instance;
         if (!gm) return;
-        
+
         const current = gm.pipeCapacity;
         const max = GameConfig.MAX_PIPE_CAPACITY;
-        
+
         this.capacityLabel.string = `${current}/${max}`;
-        
+
         // 更新按钮位置
         this.updateAddCapacityButtonPosition();
     }
-    
+
     /**
      * 更新增加管道容量按钮的位置（跟随管道末尾）
      */
     private updateAddCapacityButtonPosition() {
         if (!this.addCapacityButton) return;
         if (!this._pipeDisplay) return;
-        
+
         const pos = this._pipeDisplay.getAddCapacityButtonPosition();
-        this.addCapacityButton.setPosition(pos.x, pos.y, 0);
+        this.addCapacityButton.setPosition(-350, pos.y, 0);
     }
-    
+
     /**
      * 使用增加管道容量（点击按钮后调用）
      * 会先调用广告接口，广告播放完成后增加容量
@@ -891,27 +892,27 @@ export class ItemManager extends Component {
     public useAddCapacity() {
         const gm = GameManager.instance;
         if (!gm) return;
-        
+
         // 检查游戏状态
         if (gm.gameState !== GameState.READY) return;
-        
+
         // 检查是否已达到最大容量
         if (!gm.canIncreasePipeCapacity()) return;
-        
+
         // 调用广告接口
         this.showRewardedAd(() => {
             // 广告播放完成，增加管道容量
             this.onAddCapacityAdComplete();
         });
     }
-    
+
     /**
      * 广告播放完成后的回调
      */
     private onAddCapacityAdComplete() {
         const gm = GameManager.instance;
         if (!gm) return;
-        
+
         const success = gm.increasePipeCapacity();
         if (success) {
             this.updateCapacityUI();
@@ -919,7 +920,7 @@ export class ItemManager extends Component {
             this.updateButtonStates();
         }
     }
-    
+
     /**
      * 显示激励广告
      * @param onComplete 广告播放完成后的回调
@@ -936,7 +937,7 @@ export class ItemManager extends Component {
             onComplete();
         }
     }
-    
+
     /**
      * 显示微信激励视频广告
      */
@@ -946,13 +947,13 @@ export class ItemManager extends Component {
         const rewardedVideoAd = wx.createRewardedVideoAd({
             adUnitId: 'your-ad-unit-id'  // TODO: 替换为实际的广告单元ID
         });
-        
+
         // 监听广告关闭事件
         const onCloseHandler = (res: { isEnded: boolean }) => {
             // 移除监听
             rewardedVideoAd.offClose(onCloseHandler);
             rewardedVideoAd.offError(onErrorHandler);
-            
+
             if (res && res.isEnded) {
                 // 用户完整观看了广告
                 onComplete();
@@ -963,21 +964,21 @@ export class ItemManager extends Component {
                 }
             }
         };
-        
+
         // 监听广告错误事件
         const onErrorHandler = (err: any) => {
             console.error('[ItemManager] 广告加载失败:', err);
             rewardedVideoAd.offClose(onCloseHandler);
             rewardedVideoAd.offError(onErrorHandler);
-            
+
             if (onFailed) {
                 onFailed();
             }
         };
-        
+
         rewardedVideoAd.onClose(onCloseHandler);
         rewardedVideoAd.onError(onErrorHandler);
-        
+
         // 显示广告
         rewardedVideoAd.show().catch(() => {
             // 失败重试
@@ -987,7 +988,7 @@ export class ItemManager extends Component {
                 console.error('[ItemManager] 广告加载失败:', err);
                 rewardedVideoAd.offClose(onCloseHandler);
                 rewardedVideoAd.offError(onErrorHandler);
-                
+
                 if (onFailed) {
                     onFailed();
                 }

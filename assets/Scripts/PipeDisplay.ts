@@ -31,7 +31,7 @@ export class PipeDisplay extends Component {
     launchPosX: number = 0;
 
     @property({ tooltip: '水平段Y坐标（发射口和水平段在同一高度）' })
-    horizontalY: number = 450;
+    horizontalY: number = 265;
 
     @property({ tooltip: '水平段小球间距' })
     horizontalSpacing: number = 50;
@@ -92,7 +92,7 @@ export class PipeDisplay extends Component {
             const node = instantiate(this.ballDisplayPrefab);
             const container = this.ballContainer || this.node;
             node.setParent(container);
-            
+
             // 禁用物理组件（管道显示不需要物理）
             const rigidBody = node.getComponent(RigidBody2D);
             if (rigidBody) {
@@ -102,13 +102,13 @@ export class PipeDisplay extends Component {
             if (collider) {
                 collider.enabled = false;
             }
-            
+
             // 禁用 SmallBall 脚本
             const smallBall = node.getComponent(SmallBall);
             if (smallBall) {
                 smallBall.enabled = false;
             }
-            
+
             return node;
         }
 
@@ -145,7 +145,7 @@ export class PipeDisplay extends Component {
     public getLeftmostX(): number {
         return this.launchPosX - (this.horizontalSlots - 1) * this.horizontalSpacing;
     }
-    
+
     /**
      * 获取管道L形转弯点坐标
      */
@@ -183,7 +183,7 @@ export class PipeDisplay extends Component {
             y: y
         };
     }
-    
+
     /**
      * 获取管道末尾位置（新球进入管道的目标位置）
      */
@@ -195,7 +195,7 @@ export class PipeDisplay extends Component {
         const pipeLength = gameManager.pipeBalls.length;
         return this.getBallPosition(pipeLength);
     }
-    
+
     /**
      * 获取增加管道容量按钮应该显示的位置
      * 位置在当前管道容量的末尾后一位
@@ -255,7 +255,7 @@ export class PipeDisplay extends Component {
             }
         }
     }
-    
+
     /**
      * 隐藏指定索引的小球
      */
@@ -267,7 +267,7 @@ export class PipeDisplay extends Component {
             }
         }
     }
-    
+
     /**
      * 显示所有小球
      */
